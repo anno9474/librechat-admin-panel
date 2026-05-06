@@ -44,6 +44,6 @@ jobs:
           file: Dockerfile
           push: true
           tags: |
-            ghcr.io/clickhouse/librechat-admin-panel:${{ github.sha }}
-            ghcr.io/clickhouse/librechat-admin-panel:latest
+            ghcr.io/anno9474/librechat-admin-panel:${{ github.sha }}
+            ghcr.io/anno9474/librechat-admin-panel:latest
           platforms: linux/amd64,linux/arm64
