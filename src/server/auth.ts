@@ -9,6 +9,13 @@ import type * as t from '@/types';
 import { useAppSession, SESSION_CONFIG } from './session';
 import { getApiBaseUrl, getServerApiUrl } from './utils/api';
 
+const ALLOWED_ROLES = (process.env.ADMIN_ROLES ?? SystemRoles.ADMIN)
+  .split(',')
+  .map((r) => r.trim())
+  .filter(Boolean);
+
+const isAllowedRole = (role: string) => ALLOWED_ROLES.includes(role);
+
 /** Extract a named cookie value from `set-cookie` response headers. */
 function extractCookieValue(response: Response, name: string): string | undefined {
   const setCookies = response.headers.getSetCookie();
@@ -62,7 +69,7 @@ export const adminLoginFn = createServerFn({ method: 'POST' })
         };
       }
 
-      if (loginData.user.role !== SystemRoles.ADMIN) {
+      if (!isAllowedRole(loginData.user.role)) {
         return { error: true, message: 'You do not have admin privileges' };
       }
 
@@ -118,7 +125,7 @@ export const adminVerify2FAFn = createServerFn({ method: 'POST' })
 
       const verifyData = responseData as t.TwoFAVerifyResponse;
 
-      if (verifyData.user.role !== SystemRoles.ADMIN) {
+      if (!isAllowedRole(verifyData.user.role)) {
         return { error: true, message: 'You do not have admin privileges' };
       }
 
@@ -199,7 +206,7 @@ export const verifyAdminTokenFn = createServerFn({ method: 'GET' }).handler(asyn
       return { valid: false, error: 'No session found' };
     }
 
-    if (user.role !== SystemRoles.ADMIN) {
+    if (!isAllowedRole(user.role)) {
       await clearSession(session);
       return { valid: false, error: 'Not an admin user' };
     }
